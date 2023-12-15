@@ -132,6 +132,15 @@ BEGIN_EVENT_TABLE (MyFrame, wxFrame)
   EVT_MENU(MENU_Quit, MyFrame::Quit)
 END_EVENT_TABLE()
 
+ofstream MyFrame::openStationsFile() {
+    fstream file("./Data/Stations.bin", ios_base::app | ios_base::binary);
+    if (!file.is_open()) {
+        wxMessageDialog noFile = wxMessageDialog(this, "Coud not open the file. /n Create Stations.bin?", "Message", wxOK | wxCANCEL, wxDefaultPosition);
+        if (noFile.ShowModal() == 5100) openStationsFile();
+        else return NULL;
+        }
+}
+
 void MyFrame::writeToFile(const vector<Station>& stations, const string& filename) {
     ofstream file(filename, ios_base::app | ios_base::binary);
     if (file.is_open()) {
@@ -148,15 +157,14 @@ void MyFrame::writeToFile(const vector<Station>& stations, const string& filenam
     }
 }
 
-vector<Station> MyFrame::readFromFile(const string& filename) {
+vector<Station> MyFrame::readFromFile(fstream file) {
     vector<Station> stations;
-    ifstream file(filename, ios_base::binary);
+    fstream file(filename, ios_base::binary);
 
     if (file.is_open()) {
         string logo;
         int counter;
         int coordinates[2];
-
 
         while (file >> logo >> counter >> coordinates[0] >> coordinates[1]) {
         Station station1;
@@ -170,39 +178,53 @@ vector<Station> MyFrame::readFromFile(const string& filename) {
         file.close();
 
     }
-    else {
-        wxMessageDialog noFile = wxMessageDialog(this, "Coud not open the file. /n Create Stations.bin?", "Message", wxOK | wxCANCEL, wxDefaultPosition);
-        if (noFile.ShowModal() == 5100) {writeToFile(stations, filename);}
-        else return NULL;
-        }
     return stations;
 }
 
 bool MyFrame::NewTvItems(wxCommandEvent& WXUNUSED(event))
 {
+    ofstream file;
+    wxString filename, filespec = "";
+    int flags;
+    if (openStationsFile() == NULL) return false;
+
     vector<Station> readData;
     readData.clear();
+    int numberRecords = readData.size();
+;
     if (readData = readFromFile("./Data/Stations.bin")) == NULL) return false;
     else {
-        if (!readData.empty()){
-            wxMessageDialog fileOk = wxMessageDialog(this, "Data read succesfully from file.  \n Create new Record ?", "Message", wxOK | wxCANCEL, wxDefaultPosition);
-            if (fileOk.ShowModal() = 5101) return false;
-            else {
-                SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-                wxStaticText *label1 = new wxStaticText(this, wxID_ANY, "Channel Number: ", wxPoint(10,100), wxSize(300,30), wxALIGN_LEFT | wxBORDER_SIMPLE );
-                wxTextCtrl *input1 = new wxTextCtrl(this,wxID_ANY,"  ", wxPoint(310,100), wxSize(40,30), wxALIGN_LEFT | wxBORDER_SIMPLE);
-                wxStaticText *label2 = new wxStaticText(this, wxID_ANY, "Path to logo: ", wxPoint(10, 200), wxSize(300,30), wxALIGN_LEFT);
-                // wxTextCtrl *input2 = new wxTextCtrl(this,wxID_ANY,"  ", wxPoint(310,200), wxSize(500,30), wxALIGN_LEFT | wxBORDER_SIMPLE);
-                wxStaticText *label = new wxStaticText(this, wxID_ANY, "Command string: ", wxPoint(10, 600), wxSize(300,30), wxALIGN_LEFT);
-                wxTextCtrl *input3 = new wxTextCtrl(this,wxID_ANY,"  ", wxPoint(310,600), wxSize(1000,30), wxALIGN_LEFT | wxBORDER_SIMPLE);
+        // read path to logos and put them in wxListCtrl
+        wxDir logoDir = wxDir("/home/oem/Developments/LivingInput/Pictures");
+        //wxArrayString tvList;
+        wxImageList *tvImageList = new wxImageList(16, 16, true, numberRecords);
+        wxBitmap zenderPointer;
+        bool result;
+        zenderPointer.Create(16,16, wxBITMAP_SCREEN_DEPTH);
+        for (i = 0 ; i < numberRecords ; i++ ){
+            zenderPointer.LoadFile(readData[i].logo, wxBITMAP_DEFAULT_TYPE );
+            tvImageList->Add(zenderPointer, wxNullBitmap);
+        }
 
-                wxDir logoDir = wxDir("/home/oem/Developments/LivingInput/Pictures");
-                wxArrayString tvList;
-                wxImageList *tvImageList;
-                tvImageList = new wxImageList(16, 16, true, 3);
-                wxBitmap zenderPointer[3];
-                bool result;
-                zenderPointer[0].Create(16,16, wxBITMAP_SCREEN_DEPTH);
+        bool cont = logoDir.GetFirst(&filename, filespec, flags);
+        while ( cont ){
+            tvList.Add(filename);
+            cont = logoDir.GetNext(&filename);
+        }
+
+        //if (!readData.empty()){
+        //    wxMessageDialog fileOk = wxMessageDialog(this, "Data read succesfully from file.  \n Create new Record ?", "Message", wxOK | wxCANCEL, wxDefaultPosition);
+        //    if (fileOk.ShowModal() = 5101) return false;
+        //    else {
+            SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+            wxStaticText *label1 = new wxStaticText(this, wxID_ANY, "Channel Number: ", wxPoint(10,100), wxSize(300,30), wxALIGN_LEFT | wxBORDER_SIMPLE );
+            wxTextCtrl *input1 = new wxTextCtrl(this,wxID_ANY,"  ", wxPoint(310,100), wxSize(40,30), wxALIGN_LEFT | wxBORDER_SIMPLE);
+            wxStaticText *label2 = new wxStaticText(this, wxID_ANY, "Path to logo: ", wxPoint(10, 200), wxSize(300,30), wxALIGN_LEFT);
+                // wxTextCtrl *input2 = new wxTextCtrl(this,wxID_ANY,"  ", wxPoint(310,200), wxSize(500,30), wxALIGN_LEFT | wxBORDER_SIMPLE);
+            wxStaticText *label = new wxStaticText(this, wxID_ANY, "Command string: ", wxPoint(10, 600), wxSize(300,30), wxALIGN_LEFT);
+            wxTextCtrl *input3 = new wxTextCtrl(this,wxID_ANY,"  ", wxPoint(310,600), wxSize(1000,30), wxALIGN_LEFT | wxBORDER_SIMPLE);
+
+
 
             result = zenderPointer[0].LoadFile("./Pictures/HistoryIcon.png", wxBITMAP_DEFAULT_TYPE );
             result = zenderPointer[1].LoadFile("./Pictures/HistoryIcon.png", wxBITMAP_DEFAULT_TYPE );
@@ -211,8 +233,6 @@ bool MyFrame::NewTvItems(wxCommandEvent& WXUNUSED(event))
             tvImageList->Add(zenderPointer[1], wxNullBitmap);
             tvImageList->Add(zenderPointer[2], wxNullBitmap);
 
-    wxString filename, filespec = "";
-    int flags;
     bool cont = logoDir.GetFirst(&filename, filespec, flags);
     int i = 0;
     while ( cont )
