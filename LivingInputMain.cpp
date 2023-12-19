@@ -32,6 +32,7 @@ using namespace std;
 struct Station {
     int counter;
     int coordinates[2];
+    char name[100];
     char logo[100];
 };
 
@@ -68,6 +69,8 @@ public:
     void Quit(wxCommandEvent& WXUNUSED(event));
     void writeToFile(const vector<Station>& stations, const string& filename);
     vector<Station> readFromFile(const string& filename);
+    fstream openStationsFile();
+    wxImageList* ReadItemsList(vector<Station> readData);
 private:
     DECLARE_EVENT_TABLE();
 };
@@ -79,6 +82,22 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
    //: wxFrame(NULL, wxID_ANY, title, pos, size, wxMINIMIZE_BOX | wxCLOSE_BOX)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
+    	vector<Station> stations;
+		Station station1;
+		strcpy(station1.logo, "HistoryIcon.png");
+        strcpy(station1.name, "History");
+        station1.counter = 1;
+        station1.coordinates[0] = 1;
+        station1.coordinates[1] = 1;
+        stations.push_back(station1);
+        strcpy(station1.logo, "VRT.png");
+        strcpy(station1.name, "VRT 1");
+        station1.counter = 2;
+        station1.coordinates[0] = 2;
+        station1.coordinates[1] = 1;
+        stations.push_back(station1);
+        writeToFile(stations, "./Data/Stations.bin");
+
     CreateStatusBar(2);
     wxMenuBar *MainMenu = new wxMenuBar(0);
     wxMenu *NewMenu = new wxMenu();
@@ -132,20 +151,19 @@ BEGIN_EVENT_TABLE (MyFrame, wxFrame)
   EVT_MENU(MENU_Quit, MyFrame::Quit)
 END_EVENT_TABLE()
 
-ofstream MyFrame::openStationsFile() {
-    fstream file("./Data/Stations.bin", ios_base::app | ios_base::binary);
-    if (!file.is_open()) {
-        wxMessageDialog noFile = wxMessageDialog(this, "Coud not open the file. /n Create Stations.bin?", "Message", wxOK | wxCANCEL, wxDefaultPosition);
-        if (noFile.ShowModal() == 5100) openStationsFile();
-        else return NULL;
-        }
+fstream MyFrame::openStationsFile() {
+    fstream file("./Data/Stations.bin");
+    if (file.is_open()) return file;
+    else {
+        wxMessageDialog noFile = wxMessageDialog(this, "Coud not open the file.", "Message", wxCANCEL, wxDefaultPosition);
+    }
 }
 
 void MyFrame::writeToFile(const vector<Station>& stations, const string& filename) {
-    ofstream file(filename, ios_base::app | ios_base::binary);
+    fstream file(filename, ios_base::app | ios_base::binary);
     if (file.is_open()) {
         for (const auto& station1 : stations) {
-            file << station1.logo << " " << station1.counter << " "
+            file << station1.name << " " << station1.logo << " " << station1.counter << " "
                 << station1.coordinates[0] << " " << station1.coordinates[1] << endl;
         }
         file.close();
@@ -157,18 +175,23 @@ void MyFrame::writeToFile(const vector<Station>& stations, const string& filenam
     }
 }
 
-vector<Station> MyFrame::readFromFile(fstream file) {
+vector<Station> MyFrame::readFromFile(const string& filename) {
     vector<Station> stations;
-    fstream file(filename, ios_base::binary);
+    fstream file;
+    file.open("./Data/Stations.bin");
 
     if (file.is_open()) {
-        string logo;
+        string logo, name ;
+        file.clear();
+        file.seekg(0);
+
         int counter;
         int coordinates[2];
 
-        while (file >> logo >> counter >> coordinates[0] >> coordinates[1]) {
+        while (file >> logo >> name >> counter >> coordinates[0] >> coordinates[1]) {
         Station station1;
         strcpy(station1.logo, logo.c_str());
+        strcpy(station1.name, name.c_str());
         station1.counter = counter;
         station1.coordinates[0] = coordinates[0];
         station1.coordinates[1] = coordinates[1];
@@ -181,28 +204,52 @@ vector<Station> MyFrame::readFromFile(fstream file) {
     return stations;
 }
 
-bool MyFrame::NewTvItems(wxCommandEvent& WXUNUSED(event))
+void MyFrame::NewTvItems(wxCommandEvent& WXUNUSED(event))
 {
-    ofstream file;
+    fstream file;
     wxString filename, filespec = "";
     int flags;
-    if (openStationsFile() == NULL) return false;
+    file = openStationsFile();
 
     vector<Station> readData;
+    vector<wxString> tvList;
+
     readData.clear();
-    int numberRecords = readData.size();
-;
-    if (readData = readFromFile("./Data/Stations.bin")) == NULL) return false;
-    else {
-        // read path to logos and put them in wxListCtrl
-        wxDir logoDir = wxDir("/home/oem/Developments/LivingInput/Pictures");
-        //wxArrayString tvList;
+    int numberRecords;
+    readData = readFromFile("./Data/Stations.bin");
+
+    // load all logos from Stations.bin
+    wxImageList *tvImageList = ReadItemsList(readData);
+
+    // read other data from Station.bin and put them in wxListCtrl
+    wxArrayString tvListName, tvListCoord1, tvListCoord2, tvListNumber;
+    numberRecords = readData.size();
+    for (int i = 0 ; i < numberRecords ; i++ ){
+        tvListName.Add(readData[i].name);
+        tvListCoord1.Add(to_string(readData[i].coordinates[0]));
+        tvListCoord2.Add(to_string(readData[i].coordinates[1]));
+        tvListNumber.Add(to_string(readData[i].counter));
+    }
+
+    // create the whole listCtl
+    wxListCtrl *tvCtl;
+    tvCtl = new wxListCtrl(this, wxID_ANY, wxPoint(310,200), wxSize(500,300), wxLC_LIST | wxLC_NO_HEADER | wxLC_SINGLE_SEL |
+            wxSUNKEN_BORDER, wxDefaultValidator, " Test");
+
+    tvCtl->AssignImageList(tvImageList,  wxIMAGE_LIST_SMALL);
+    for (int i = 0 ; i < numberRecords ; i++ ){
+        tvCtl->InsertItem(0, tvListName[i], i);
+    }
+
+ /*       wxDir logoDir = wxDir("/home/oem/Developments/LivingInput/Pictures");
+
         wxImageList *tvImageList = new wxImageList(16, 16, true, numberRecords);
         wxBitmap zenderPointer;
-        bool result;
+        string pathAndFile;
         zenderPointer.Create(16,16, wxBITMAP_SCREEN_DEPTH);
-        for (i = 0 ; i < numberRecords ; i++ ){
-            zenderPointer.LoadFile(readData[i].logo, wxBITMAP_DEFAULT_TYPE );
+
+            pathAndFile = "./Pictures/" + readData[i].logo;
+            zenderPointer.LoadFile(pathAndFile, wxBITMAP_DEFAULT_TYPE );
             tvImageList->Add(zenderPointer, wxNullBitmap);
         }
 
@@ -253,8 +300,26 @@ bool MyFrame::NewTvItems(wxCommandEvent& WXUNUSED(event))
     tvCtl->InsertItem(0, "1---", 0);
     tvCtl->InsertItem(0, "2---", 1);
     tvCtl->InsertItem(0, "3---", 2);
-    logoDir.Close();
+    logoDir.Close();*/
+    file.close();
 }
+
+wxImageList* MyFrame::ReadItemsList(vector<Station> readData){
+    int numberRecords = readData.size();;
+    wxImageList *tvImageList = new wxImageList(16, 16, true, numberRecords);
+    wxBitmap zenderPointer;
+    wxString pathAndFile, strLogo;
+
+    for (int i = 0 ; i < numberRecords ; i++ ){
+        pathAndFile = "./Pictures/";
+        strLogo = readData[i].logo;
+        pathAndFile = pathAndFile + strLogo;
+        zenderPointer.LoadFile(pathAndFile, wxBITMAP_DEFAULT_TYPE );
+        tvImageList->Add(zenderPointer, wxNullBitmap);
+    }
+    return tvImageList;
+}
+
 void MyFrame::NewRadioItems(wxCommandEvent& WXUNUSED(event))
 {
 }
@@ -294,12 +359,15 @@ public:
 
     virtual bool OnInit()
     {
+
 		wxInitAllImageHandlers();
 		wxRect myRect = wxGetClientDisplayRect();
 		wxFrame *frame = new MyFrame("Living Input ", wxDefaultPosition, wxDefaultSize);
 		frame->Show(true);
+
 		/*wxFrame *frame2 = new AudioScreen("Audio - Video", wxPoint(300,350), wxSize(960, 600));
 		frame2->Show(true);*/
+
 		return true;
 
     }
