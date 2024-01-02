@@ -41,6 +41,7 @@
 		<Unit filename="LivingInputApp.h" />
 		<Unit filename="LivingInputMain.cpp" />
 		<Unit filename="LivingInputMain.h" />
+		<Unit filename="include/mediaClass.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
