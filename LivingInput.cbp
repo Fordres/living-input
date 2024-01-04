@@ -37,6 +37,7 @@
 		<Linker>
 			<Add option="`wx-config --libs`" />
 		</Linker>
+		<Unit filename="../Living/general.h" />
 		<Unit filename="LivingInputApp.cpp" />
 		<Unit filename="LivingInputApp.h" />
 		<Unit filename="LivingInputMain.cpp" />

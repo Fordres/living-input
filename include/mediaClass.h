@@ -22,6 +22,10 @@
 #include <wx/imaglist.h>
 #include <wx/bitmap.h>
 #include <wx/button.h>
+#include <wx/statbox.h>
+#include "/home/oem/Developments/Living/general.h"
+#include <wx/dcclient.h>
+#include <wx/panel.h>
 
 struct Station {
     int counter;
@@ -35,7 +39,8 @@ enum
     TEXT_CTL_INPUT1 = wxID_HIGHEST + 1, // declares an id which will be used to call our button
     TEXT_CTL_INPUT2,
     CTL_LIST,
-    SCR_FRAME
+    SCR_FRAME,
+    SCR_GRAPH
   };
 
 using namespace std;
@@ -85,6 +90,7 @@ BEGIN_EVENT_TABLE (mediaItem, wxFrame)
   EVT_TEXT_ENTER(TEXT_CTL_INPUT1, mediaItem::Input1Enter)
   EVT_TEXT_ENTER(TEXT_CTL_INPUT2, mediaItem::Input2Enter)
   EVT_LIST_ITEM_ACTIVATED(CTL_LIST, mediaItem::CtlListSelect)
+
 END_EVENT_TABLE()
 
 bool mediaItem::openStationsFile(const string& mediaData) {
@@ -164,8 +170,7 @@ void mediaItem::NewChannel(const string objectData, const string objectLogos)
     readData = readFromFile(mediaData);
     ShowItemList(readData);
 
-    mediaMainScreen->Show(true);
-    // mediaMainScreen->SetFocus();
+
     wxMessageDialog *fileOk = new wxMessageDialog(this, "Create new Channel?", "Message", wxYES_NO | wxCANCEL, wxDefaultPosition);
     if (fileOk->ShowModal() == wxID_YES) {
         SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
@@ -178,6 +183,8 @@ void mediaItem::NewChannel(const string objectData, const string objectLogos)
         input2 = new wxTextCtrl(mediaMainScreen,TEXT_CTL_INPUT2,"  ", wxPoint(310,550), wxSize(100,30), wxALIGN_LEFT | wxBORDER_SIMPLE | wxTE_PROCESS_ENTER);
         wxStaticText *label3 = new wxStaticText(mediaMainScreen, wxID_ANY, "Logo: ", wxPoint(25, 600), wxSize(300,30), wxALIGN_LEFT);
         ReadLogos(mediaLogos);
+        mediaMainScreen->Show(true);
+        mediaMainScreen->SetFocus();
     };
 }
 
@@ -262,14 +269,16 @@ void mediaItem::ConfirmMediaChanels(wxString stationFile, const string& filename
 
         int j = 0;
         int hulp = stationFile.length();
-         for (int i = 0; i < stationFile.length(); i++) {
+         for (int i = 0; i < hulp; i++) {
              if (stationFile[i] == '/') j = i;
         }
 
         int lengte = (stationFile.length() - ++j);
         for (int i = 0; i < lengte; i++) {
-             str[i] = stationFile[i+j];
+             str[i] = stationFile[j];
+             j++;
         }
+        stationFile[j] = '\0';
         strcpy(MyData.logo, str);
 
         MyData.counter = atoi(input1->GetValue());
@@ -369,8 +378,12 @@ void mediaItem::ShowItemList(vector<Station> readData){
     // create the whole listCtl
     wxListCtrl *mediaCtl;
     SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-    wxStaticText *label1 = new wxStaticText(mediaMainScreen, wxID_ANY, "Already registred channels", wxPoint(25,80), wxSize(300,20), wxALIGN_LEFT | wxBORDER_SIMPLE );
-    mediaCtl = new wxListCtrl(mediaMainScreen, wxID_ANY, wxPoint(25,100), wxSize(500,300), wxLC_REPORT | wxLC_SINGLE_SEL |
+    wxStaticText *label1 = new wxStaticText(mediaMainScreen, wxID_ANY, "Already registred channels", wxPoint(25,70), wxSize(300,20), wxALIGN_LEFT | wxBORDER_SIMPLE );
+    wxStaticBox *boxLogo = new wxStaticBox(mediaMainScreen, wxID_ANY, " ", wxPoint(22,90), wxSize(52,122));
+    wxStaticBox *boxNumber = new wxStaticBox(mediaMainScreen, wxID_ANY, " ", wxPoint(74,90), wxSize(125,122));
+    wxStaticBox *boxName = new wxStaticBox(mediaMainScreen, wxID_ANY, " ", wxPoint(199,90), wxSize(327,122));
+    wxStaticText *header = new wxStaticText(mediaMainScreen, wxID_ANY, "Logo        Channel Number       Name", wxPoint(25, 100), wxSize(500, 20), wxALIGN_LEFT | wxBORDER_SIMPLE );
+    mediaCtl = new wxListCtrl(mediaMainScreen, wxID_ANY, wxPoint(25,125), wxSize(500,300), wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_NO_HEADER | wxLC_VRULES |
             wxSUNKEN_BORDER | wxLC_VRULES, wxDefaultValidator, " ");
 
     // Add first column
@@ -403,7 +416,7 @@ void mediaItem::ShowItemList(vector<Station> readData){
 	mediaCtl->InsertColumn(3, col3);
 
     mediaCtl->AssignImageList(mediaImageList,  wxIMAGE_LIST_SMALL);
-    for (int i = 0 ; i < numberRecords ; i++ ){
+    for (int i = 0; i < numberRecords ; i++ ){
         itemIndex = mediaCtl->InsertItem(1, "");
         mediaCtl->SetItem(itemIndex, 2, channelListNumber[i]);
         mediaCtl->SetItem(itemIndex, 3, channelListName[i]);
@@ -411,33 +424,56 @@ void mediaItem::ShowItemList(vector<Station> readData){
     }
 }
 
-/*void mediaItem::NewRadioItems(wxCommandEvent& WXUNUSED(event))
+
+class AvItem : public wxFrame
 {
-    fstream file;
-    vector<wxString> radioList;
-    vector<Station> stations;
-    menuItem = 2;
-
-    file = openStationsFile("./Data/Radios.bin");
-    readData.clear();
-    readData = readFromFile("./Data/Radios.bin");
-    ShowItemList(readData);
-
-    wxMessageDialog *fileOk = new wxMessageDialog(this, "Create new Radio Channel?", "Message", wxYES_NO | wxCANCEL, wxDefaultPosition);
-    if (fileOk->ShowModal() == wxID_YES) {
-        SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-        wxStaticText *label0 = new wxStaticText(this, wxID_ANY, "New Channel: ", wxPoint(25,470), wxSize(300,30), wxALIGN_LEFT | wxBORDER_SIMPLE );
-        wxStaticText *label1 = new wxStaticText(this, wxID_ANY, "Channel Number: ", wxPoint(25,500), wxSize(300,30), wxALIGN_LEFT | wxBORDER_SIMPLE );
+public:
+    AvItem(const wxString& title, const wxPoint& pos, const wxSize& size, const string objectData, const string objectGraphics);
+    void OnPaint(wxPaintEvent& WXUNUSED(event));
+private:
+    wxFrame *avMainScreen;
+    wxFrame *avGraphicsScreen;
+    string avData, avGraphics;
+    wxImage myBitmap2 = wxImage("./Living_2048.gif", wxBITMAP_TYPE_GIF);
+    DECLARE_EVENT_TABLE();
+};
 
 
-        input1 = new wxTextCtrl(this,TEXT_CTL_INPUT1,"  ", wxPoint(310,500), wxSize(40,30), wxALIGN_LEFT | wxBORDER_SIMPLE | wxTE_PROCESS_ENTER);
-        wxStaticText *label2 = new wxStaticText(this, wxID_ANY, "Name: ", wxPoint(25, 550), wxSize(300,30), wxALIGN_LEFT);
-        input2 = new wxTextCtrl(this,TEXT_CTL_INPUT2,"  ", wxPoint(310,550), wxSize(100,30), wxALIGN_LEFT | wxBORDER_SIMPLE | wxTE_PROCESS_ENTER);
-        wxStaticText *label3 = new wxStaticText(this, wxID_ANY, "Logo: ", wxPoint(25, 600), wxSize(300,30), wxALIGN_LEFT);
-        ReadLogos("./Pictures/RadioChannels/");
-    };
+//MyFrame constructor gh
+AvItem::AvItem(const wxString& title, const wxPoint& pos, const wxSize& size, const string objectData, const string objectGraphics)
+{
+    avData = objectData;
+    avGraphics = objectGraphics;
+    avMainScreen = new wxFrame(this, SCR_FRAME, title, pos, size);
+    avGraphicsScreen = new wxFrame(avMainScreen,SCR_GRAPH, " ", pos, size );
 
-    file.close();
-}*/
+
+    float myScaleFactor = CalculateScale();
+    wxSize displaySize = size;
+	wxSize imgSize = myBitmap2.GetSize();
+	myScaleFactor = CalculateScale();
+	myBitmap2 = myBitmap2.Scale(displaySize.x, displaySize.y);
+	// this->Bind(wxEVT_PAINT, &AvItem::OnPaint, this);
+    avMainScreen->Show(true);
+    avGraphicsScreen->Show(true);
+
+    //Refresh();
+    // mediaMainScreen->Show(true);
+}
+
+BEGIN_EVENT_TABLE (AvItem, wxFrame)
+  EVT_PAINT(AvItem::OnPaint)
+END_EVENT_TABLE()
+
+void AvItem::OnPaint(wxPaintEvent& WXUNUSED(event))
+{
+	wxPaintDC dc(avGraphicsScreen);
+	PrepareDC(dc);
+
+	wxPen mijnPen = wxPen(wxColour(200,200,200), 10, wxPENSTYLE_SOLID);
+	dc.SetPen( mijnPen);
+	dc.SetBrush( *wxBLUE_BRUSH );
+    dc.DrawBitmap(myBitmap2, 0, 20, true);
+};
 
 #endif // MEDIAITEM_H

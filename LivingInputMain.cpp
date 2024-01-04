@@ -27,7 +27,7 @@
 #include <wx/imaglist.h>
 #include <wx/bitmap.h>
 #include <wx/button.h>
-#include "/home/dirk/Developments/living-input/include/mediaClass.h"
+#include "./include/mediaClass.h"
 
 using namespace std;
 
@@ -142,6 +142,8 @@ void MyFrame::NewRadioChannel(wxCommandEvent& WXUNUSED(event))
 }
 void MyFrame::NewAvItems(wxCommandEvent& WXUNUSED(event))
 {
+    wxRect myRect = wxGetClientDisplayRect();
+    AvItem *radioChannels = new AvItem("AV Item", wxPoint(0, 50), wxSize(myRect.width, (myRect.height - 50)), "./Data/Radios.bin", "./Pictures/RadioChannels/");
 }
 void MyFrame::NewFibItems(wxCommandEvent& WXUNUSED(event))
 {
