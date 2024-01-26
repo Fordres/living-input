@@ -1,33 +1,9 @@
 #ifndef MEDIAITEM_H
 #define MEDIAITEM_H
 
-#include "wx/wxprec.h"
-#include "wx/defs.h"
-#include <wx/frame.h>
-#include <wx/app.h>
-#include <wx/menu.h>
-#include <wx/textctrl.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include<cstring>
-#include<vector>
-#include <wx/msgdlg.h>
-#include <wx/stattext.h>
-#include <wx/sizer.h>
-#include <wx/dir.h>
-#include <wx/listbox.h>
-#include <wx/arrstr.h>
-#include <wx/listctrl.h>
-#include <wx/imaglist.h>
-#include <wx/bitmap.h>
-#include <wx/button.h>
 #include <wx/statbox.h>
 #include "/home/oem/Developments/Living/general.h"
-#include <wx/dcclient.h>
-#include <wx/panel.h>
 #include <wx/event.h>
-#include <wx/sizer.h>
 
 struct Station {
     int counter;
@@ -63,18 +39,16 @@ public:
     void Input2Enter(wxCommandEvent& event);
     void CtlListSelect(wxListEvent& event);
     void ConfirmMediaChanels(wxString stationFile, const string& filename);
-    void OnPaint(wxPaintEvent& WXUNUSED(event));
+    void OnClose(wxCloseEvent& event);
 
     wxImage testpt2, largeLogo;
     wxListCtrl* ReadLogos(const string& filename);
-    wxImage myBitmap2;
 
 private:
     vector<Station> readData, MyData;
     wxTextCtrl *input1, *input2;
     wxListCtrl *mediaCtl;
     DECLARE_EVENT_TABLE();
-    // int menuItem;
     string mediaLogos, mediaData;
     wxFrame *mediaMainScreen;
 };
@@ -89,7 +63,7 @@ mediaItem::mediaItem(const wxString& title, const wxPoint& pos, const wxSize& si
 
     mediaMainScreen = new wxFrame(this, SCR_FRAME, title, pos, size);
 
-    // mediaMainScreen->Show(true);
+    mediaMainScreen->Show(true);
 }
 
 BEGIN_EVENT_TABLE (mediaItem, wxFrame)
@@ -427,101 +401,6 @@ void mediaItem::ShowItemList(vector<Station> readData){
         mediaCtl->SetItem(itemIndex, 3, channelListName[i]);
         mediaCtl->SetItemImage(itemIndex, i);
     }
-};
-
-/*class AvItem : public MyFrame
-{
-public:
-    AvItem(wxFrame *avMainScreen, const wxString& title, const wxPoint& pos, const wxSize& size, const string objectData, const string objectGraphics);
-    void OnPaint(wxPaintEvent& WXUNUSED(event));
-    wxFrame *avMainScreen;
-    wxFrame *avGraphicsScreen;
-    string avData, avGraphics;
-    void Tekening();
-    void paintNow();
-    void render(wxDC&  dc);
-    wxImage myBitmap2 = wxImage("./Living_2048.png", wxBITMAP_TYPE_PNG);
-private:
-    DECLARE_EVENT_TABLE();
-};
-
-BEGIN_EVENT_TABLE (AvItem, wxFrame)
-  EVT_PAINT(AvItem::OnPaint)
-END_EVENT_TABLE()
-
-
-//MyFrame constructor gh
-AvItem::AvItem(wxFrame *avMainScreen, const wxString& title, const wxPoint& pos, const wxSize& size, const string objectData, const string objectGraphics)
-//   : wxFrame(avMainScreen, SCR_FRAME, title)
-{
-    avData = objectData;
-    avGraphics = objectGraphics;
-    //avMainScreen = new wxFrame(this, SCR_FRAME, title, pos, size);
-    //avGraphicsScreen = new wxFrame(avMainScreen,SCR_GRAPH, title, pos, size );
-    //avGraphicsScreen = new wxFrame(this,SCR_GRAPH, title, pos, size );
-    //myBitmap2 = wxImage("./Living_2048.png", wxBITMAP_TYPE_PNG);
-	//myBitmap2 = myBitmap2.Scale(150, 150);
-    //wxSize displaySize = size;
-	//wxSize imgSize = myBitmap2.GetSize();
-	//float myScaleFactor = CalculateScale();
-	//wxStaticText *label1 = new wxStaticText(avGraphicsScreen, wxID_ANY, to_string(myScaleFactor), wxPoint(25,70), wxSize(300,20), wxALIGN_LEFT | wxBORDER_SIMPLE );
-	// wxStaticText *label2 = new wxStaticText(avGraphicsScreen, wxID_ANY, to_string(imgSize.x), wxPoint(25,170), wxSize(300,20), wxALIGN_LEFT | wxBORDER_SIMPLE );
-	//SetBackgroundColour(* wxWHITE);
-	//myBitmap2 = myBitmap2.Scale(displaySize.x, displaySize.y);
-	// this->Bind(wxEVT_PAINT, &AvItem::OnPaint, this);
-    //avMainScreen->Show(true);
-    //Tekening();
-    //paintNow();
-    //avMainScreen->Show(true);
-
-    //avMainScreen->Refresh();
-    //avMainScreen->Show(true);
 }
-
-void AvItem::paintNow()
-{
-    wxClientDC dc(this);
-    render(dc);
-}
-
-
-void AvItem::OnPaint(wxPaintEvent& WXUNUSED(event))
-{
-	wxPaintDC dc(avMainScreen);
-	PrepareDC(dc);
-    dc.SetTextForeground(wxColour(100, 80, 30));
-	wxPen mijnPen = wxPen(wxColour(200,200,200), 10, wxPENSTYLE_SOLID);
-	dc.SetPen( mijnPen);
-	dc.SetBrush( *wxBLUE_BRUSH );
-
-    dc.DrawBitmap(myBitmap2, 100, 100, true);
-    //avMainScreen->Refresh();
-};
-
-void AvItem::Tekening()
-{
-    SetBackgroundColour(* wxWHITE);
-	myBitmap2 = wxImage("./Living_2048.png", wxBITMAP_TYPE_PNG);
-	myBitmap2 = myBitmap2.Scale(150, 150);
-    // avMainScreen->Refresh();
-
-
-}
-
-void AvItem::render(wxDC&  dc)
-{
-    wxImage myBitmap;
-    myBitmap = wxImage("./Living_2048.png", wxBITMAP_TYPE_PNG);
-    myBitmap = myBitmap.Scale(150, 150);
-    dc.DrawBitmap(myBitmap, 0, 20, true);
-    dc.DrawText(wxT("Testing"), 40, 60);
-
-    // draw a circle
-    dc.SetBrush(*wxGREEN_BRUSH); // green filling
-    dc.SetPen( wxPen( wxColor(255,0,0), 5 ) ); // 5-pixels-thick red outline
-    dc.DrawCircle( wxPoint(200,100), 25 /* radius  );
-}
-*/
-
 
 #endif // MEDIAITEM_H

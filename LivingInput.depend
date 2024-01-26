@@ -1638,7 +1638,7 @@
 1688067793 /usr/local/include/wx-3.0/wx/gtk/mdi.h
 	"wx/frame.h"
 
-1704395770 source:/home/oem/Developments/LivingInput/LivingInputMain.cpp
+1705427480 source:/home/oem/Developments/LivingInput/LivingInputMain.cpp
 	"wx/wxprec.h"
 	"wx/defs.h"
 	<wx/frame.h>
@@ -1661,6 +1661,8 @@
 	<wx/bitmap.h>
 	<wx/button.h>
 	"./include/mediaClass.h"
+	<wx/dcclient.h>
+	"/home/oem/Developments/include/screen.h"
 
 1688067793 /usr/local/include/wx-3.0/wx/wxprec.h
 	"wx/defs.h"
@@ -1746,7 +1748,7 @@
 	<wx/bitmap.h>
 	<wx/button.h>
 
-1704402765 /home/oem/Developments/LivingInput/include/mediaClass.h
+1705427276 /home/oem/Developments/LivingInput/include/mediaClass.h
 	"wx/wxprec.h"
 	"wx/defs.h"
 	<wx/frame.h>
@@ -1772,6 +1774,17 @@
 	"/home/oem/Developments/Living/general.h"
 	<wx/dcclient.h>
 	<wx/panel.h>
+	<wx/event.h>
+	<wx/sizer.h>
 
 1704400203 /home/oem/Developments/Living/general.h
+
+1705425042 source:/home/oem/Developments/LivingInput/src/screentest.cpp
+	<wx/frame.h>
+
+1705427185 source:/home/oem/Developments/src/screen.cpp
+	"/home/oem/Developments/include/screen.h"
+
+1705427222 /home/oem/Developments/include/screen.h
+	<wx/frame.h>
 

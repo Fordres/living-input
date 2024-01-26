@@ -27,9 +27,9 @@
 #include <wx/imaglist.h>
 #include <wx/bitmap.h>
 #include <wx/button.h>
-#include "mediaClass.h"
+#include "/home/oem/Developments/Livinginput/mediaClass.h"
 #include <wx/dcclient.h>
-#include "Screen2.h"
+#include "/home/oem/Developments/Livinginput/Screen2.h"
 
 using namespace std;
 
@@ -48,6 +48,8 @@ enum
     MENU_Quit,
   };
 
+screen *avItem;
+
 // create the frame class
 
 class MyFrame : public wxFrame
@@ -63,8 +65,7 @@ public:
     void EdAvItems(wxCommandEvent& WXUNUSED(event));
     void EdFibItems(wxCommandEvent& WXUNUSED(event));
     void Save(wxCommandEvent& WXUNUSED(event));
-    void OnClose(wxCloseEvent& event);
-    void OnExit(wxCommandEvent& event);
+    void Quit(wxCommandEvent& WXUNUSED(event));
     Screen2 *frameGraph;
     // wxFrame *frameMain2;
     // wxImage myBitmap2 = wxImage("./Living_2048.png", wxBITMAP_TYPE_PNG);
@@ -78,8 +79,9 @@ private:
 
 //MyFrame constructor gh
 MyFrame::MyFrame()
-    : wxFrame(NULL, wxID_ANY, "Living Input", wxPoint(0,0), wxSize(1800, 900))
+    : wxFrame(NULL, wxID_ANY, "Living Input", wxDefaultPosition, wxDefaultSize)
 {
+    CreateStatusBar(2);
     wxMenuBar *MainMenu = new wxMenuBar(0);
     wxMenu *NewMenu = new wxMenu();
     wxMenu *EditMenu = new wxMenu();
@@ -128,8 +130,8 @@ BEGIN_EVENT_TABLE (MyFrame, wxPanel)
   EVT_MENU(MENU_EdAv, MyFrame::EdAvItems)
   EVT_MENU(MENU_EdFib, MyFrame::EdFibItems)
   EVT_MENU(MENU_Save, MyFrame::Save)
-  EVT_CLOSE(MyFrame::OnClose)
-  EVT_MENU(wxID_EXIT,  MyFrame::OnExit)
+  EVT_MENU(MENU_Quit, MyFrame::Quit)
+  EVT_PAINT(MyFrame::OnPaint)
 END_EVENT_TABLE()
 
 void MyFrame::NewTVChannel(wxCommandEvent& WXUNUSED(event))
@@ -169,15 +171,8 @@ void MyFrame::EdFibItems(wxCommandEvent& WXUNUSED(event))
 void MyFrame::Save(wxCommandEvent& WXUNUSED(event))
 {
 }
-void MyFrame::OnClose(wxCloseEvent& event)
+void MyFrame::Quit(wxCommandEvent& WXUNUSED(event))
 {
-    this->Close(true);
-    this->Destroy();
-}
-void MyFrame::OnExit(wxCommandEvent& event)
-{
-    Close( true );
-    this->Destroy();
 }
 
 // start program
@@ -199,8 +194,11 @@ public:
 		// wxRect myRect = wxGetClientDisplayRect();
 
 		wxFrame *frameMain = new MyFrame();
-		frameMain->Maximize();
+		// rameMain->createSubFrame(frameMain);
 		frameMain->Show(true);
+		// frameGraph = new MyFrame(frameMain);
+		avItem = new screen();
+        // MyScreen();
 		return true;
 
     }
