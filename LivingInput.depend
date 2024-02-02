@@ -580,7 +580,7 @@
 
 1688067793 /usr/local/include/wx-3.0/wx/gtk/app.h
 
-1701892579 /home/oem/Developments/LivingInput/LivingInputMain.h
+1705871934 /home/oem/Developments/LivingInput/LivingInputMain.h
 	<wx/wx.h>
 	"LivingInputApp.h"
 
@@ -1638,7 +1638,7 @@
 1688067793 /usr/local/include/wx-3.0/wx/gtk/mdi.h
 	"wx/frame.h"
 
-1705427480 source:/home/oem/Developments/LivingInput/LivingInputMain.cpp
+1705943812 source:/home/oem/Developments/LivingInput/LivingInputMain.cpp
 	"wx/wxprec.h"
 	"wx/defs.h"
 	<wx/frame.h>
@@ -1660,9 +1660,9 @@
 	<wx/imaglist.h>
 	<wx/bitmap.h>
 	<wx/button.h>
-	"./include/mediaClass.h"
+	"mediaClass.h"
 	<wx/dcclient.h>
-	"/home/oem/Developments/include/screen.h"
+	"Screen2.h"
 
 1688067793 /usr/local/include/wx-3.0/wx/wxprec.h
 	"wx/defs.h"
@@ -1787,4 +1787,59 @@
 
 1705427222 /home/oem/Developments/include/screen.h
 	<wx/frame.h>
+
+1705936953 /home/oem/Developments/LivingInput/mediaClass.h
+	<wx/statbox.h>
+	"/home/oem/Developments/Living/general.h"
+	<wx/event.h>
+
+1706250765 /home/oem/Developments/LivingInput/Screen2.h
+	<wx/dragimag.h>
+
+1688067793 /usr/local/include/wx-3.0/wx/dragimag.h
+	"wx/generic/dragimgg.h"
+	"wx/msw/dragimag.h"
+	"wx/generic/dragimgg.h"
+	"wx/generic/dragimgg.h"
+	"wx/generic/dragimgg.h"
+	"wx/generic/dragimgg.h"
+	"wx/generic/dragimgg.h"
+
+1688067793 /usr/local/include/wx-3.0/wx/generic/dragimgg.h
+	"wx/bitmap.h"
+	"wx/icon.h"
+	"wx/cursor.h"
+	"wx/treectrl.h"
+	"wx/listctrl.h"
+	"wx/log.h"
+	"wx/overlay.h"
+
+1688067793 /usr/local/include/wx-3.0/wx/treectrl.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/treebase.h"
+	"wx/textctrl.h"
+	"wx/generic/treectlg.h"
+	"wx/msw/treectrl.h"
+	"wx/generic/treectlg.h"
+	"wx/generic/treectlg.h"
+	"wx/generic/treectlg.h"
+	"wx/generic/treectlg.h"
+	"wx/generic/treectlg.h"
+
+1688067793 /usr/local/include/wx-3.0/wx/treebase.h
+	"wx/defs.h"
+	"wx/window.h"
+	"wx/event.h"
+	"wx/dynarray.h"
+	"wx/itemid.h"
+
+1688067793 /usr/local/include/wx-3.0/wx/itemid.h
+
+1688067793 /usr/local/include/wx-3.0/wx/generic/treectlg.h
+	"wx/scrolwin.h"
+	"wx/pen.h"
+
+1688067793 /usr/local/include/wx-3.0/wx/overlay.h
+	"wx/defs.h"
 
